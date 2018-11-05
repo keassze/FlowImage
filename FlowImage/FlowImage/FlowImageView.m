@@ -15,8 +15,8 @@
 @property (nonatomic, assign) NSInteger page;
 @property (nonatomic, assign) NSInteger pageCount;
 @property (nonatomic, assign) CGSize pageSize;
-@property (nonatomic, assign) NSRange visibleRange;
 
+@property (nonatomic, strong) NSTimer *timer;
 @property (nonatomic, strong) NSMutableArray *cells;
 @property (nonatomic, strong) NSMutableArray *reusableCells;
 
@@ -25,7 +25,8 @@
 
 @implementation FlowImageView
 
-- (void)initConfig {
+- (void)initConfig
+{
     self.clipsToBounds = YES;
     self.backgroundColor = [UIColor whiteColor];
     
@@ -36,7 +37,6 @@
     self.topBottomMargin = 30;
     self.currentPageIndex = 0;
     self.flowTime = 5.0;
-    
     self.visibleRange = NSMakeRange(0, 0);
     
     self.reusableCells = [[NSMutableArray alloc] initWithCapacity:0];
@@ -53,7 +53,6 @@
     
     [self addSubview:self.scrollView];
 }
-
 
 #pragma mark - 重写父类方法
 - (instancetype)init
@@ -83,16 +82,29 @@
     return self;
 }
 
-- (void)setLeftRightMargin:(CGFloat)leftRightMargin {
+//- (instancetype)initWithFrame:(CGRect)frame forLayout:(FlowImageViewLayout *)layout
+//{
+//    self = [super initWithFrame:frame];
+//    if (self) {
+//        [self initConfig];
+//        self.layout = layout;
+//    }
+//    return self;
+//}
+
+- (void)setLeftRightMargin:(CGFloat)leftRightMargin
+{
     _leftRightMargin = leftRightMargin * 0.5;
-    
+
 }
 
-- (void)setTopBottomMargin:(CGFloat)topBottomMargin {
+- (void)setTopBottomMargin:(CGFloat)topBottomMargin
+{
     _topBottomMargin = topBottomMargin * 0.5;
 }
 
-- (FlowImageCell *)dequeueReusableCell{
+- (FlowImageCell *)dequeueReusableCell
+{
     FlowImageCell *cell = [_reusableCells lastObject];
     if (cell)
     {
@@ -102,27 +114,25 @@
     return cell;
 }
 
-- (void)startTimer {
-    
+- (void)startTimer
+{
     if (self.orginPageCount > 1 && self.isAutoScroll && self.isForeverFlow) {
         
         self.timer = [NSTimer scheduledTimerWithTimeInterval:self.flowTime target:self selector:@selector(autoFlowPage) userInfo:nil repeats:YES];
         [[NSRunLoop mainRunLoop] addTimer:self.timer forMode:NSRunLoopCommonModes];
     }
-    
 }
 
-- (void)stopTimer {
-    
+- (void)stopTimer
+{
     if (self.timer) {
         [self.timer invalidate];
         self.timer = nil;
     }
-    
 }
 
-- (void)reloadData {
-    
+- (void)reloadData
+{
     for (UIView * tempView in self.scrollView.subviews) {
         if ([tempView isKindOfClass:[FlowImageCell class]] || [NSStringFromClass(tempView.class) isEqualToString:subViewClassName]) {
             [tempView removeFromSuperview];
@@ -190,11 +200,10 @@
     
     //更新可视cell
     [self refreshVisibleCell];
-    
 }
 
-- (void)setPageAtIndex:(NSInteger)index {
-    
+- (void)setPageAtIndex:(NSInteger)index
+{
     FlowImageCell *cell = [_cells objectAtIndex:index];
     
     if ((NSObject *)cell == [NSNull null]) {
@@ -216,8 +225,8 @@
     }
 }
 
-- (void)refreshVisibleCell {
-    
+- (void)refreshVisibleCell
+{
     CGFloat offset = _scrollView.contentOffset.x;
     
     for (NSInteger i = _visibleRange.location; i < _visibleRange.location + _visibleRange.length; i++) {
@@ -244,15 +253,12 @@
             cell.layer.transform = CATransform3DMakeScale((_pageSize.width-self.leftRightMargin*2)/_pageSize.width,(_pageSize.height-self.topBottomMargin*2)/_pageSize.height, 1.0);
             cell.frame = UIEdgeInsetsInsetRect(originCellFrame, UIEdgeInsetsMake(_topBottomMargin, _leftRightMargin, _topBottomMargin, _leftRightMargin));
             
-            
         }
-        
     }
-    
 }
 
-- (void)setPagesAtContentOffset:(CGPoint)offset {
-    
+- (void)setPagesAtContentOffset:(CGPoint)offset
+{
     //计算visibleRange
     CGPoint startPoint = CGPointMake(offset.x - _scrollView.frame.origin.x, offset.y - _scrollView.frame.origin.y);
     CGPoint endPoint = CGPointMake(startPoint.x + self.bounds.size.width, startPoint.y + self.bounds.size.height);
@@ -277,7 +283,7 @@
     //可见页分别向前向后扩展一个，提高效率
     startIndex = MAX(startIndex - 1, 0);
     endIndex = MIN(endIndex + 1, [_cells count] - 1);
-
+    
     self.visibleRange = NSMakeRange(startIndex, endIndex - startIndex + 1);
     for (NSInteger i = startIndex; i <= endIndex; i++) {
         [self setPageAtIndex:i];
@@ -293,16 +299,15 @@
 }
 
 #pragma mark --自动轮播
-- (void)autoFlowPage {
-    
+- (void)autoFlowPage
+{
     self.page ++;
     
     [self.scrollView setContentOffset:CGPointMake(_page * _pageSize.width, 0) animated:YES];
-    
 }
 
-- (void)removeCellAtIndex:(NSInteger)index {
-    
+- (void)removeCellAtIndex:(NSInteger)index
+{
     FlowImageCell *cell = [self.cells objectAtIndex:index];
     
     if ((NSObject *)cell == [NSNull null]) {    //
@@ -319,16 +324,18 @@
 }
 
 #pragma mark --ScrollViewDelegate
-- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+{
     [self stopTimer];
 }
 
-- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
+{
     [self startTimer];
 }
 
-- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset {
-    
+- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset
+{
     if (self.orginPageCount > 1 && self.isAutoScroll && self.isForeverFlow) {
         
         if (self.page == floor(_scrollView.contentOffset.x / _pageSize.width)) {
@@ -340,28 +347,23 @@
     }
 }
 
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView{
-    
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
     if (self.orginPageCount == 0) {
         return;
     }
     
     NSInteger pageIndex = (int)round(_scrollView.contentOffset.x / _pageSize.width) % self.orginPageCount;
-
     if (_isForeverFlow) {
         
         if (self.orginPageCount > 1) {
             if (scrollView.contentOffset.x / _pageSize.width >= 2 * self.orginPageCount) {
-                
                 [scrollView setContentOffset:CGPointMake(_pageSize.width * self.orginPageCount, 0) animated:NO];
-                
                 self.page = self.orginPageCount;
-                
             }
             
             if (scrollView.contentOffset.x / _pageSize.width <= self.orginPageCount - 1) {
                 [scrollView setContentOffset:CGPointMake((2 * self.orginPageCount - 1) * _pageSize.width, 0) animated:NO];
-                
                 self.page = 2 * self.orginPageCount;
             }
             
@@ -375,16 +377,13 @@
     [self refreshVisibleCell];
     
     _currentPageIndex = pageIndex;
-    
 }
 
 //点击了cell
-- (void)singleCellTapAction:(NSInteger)selectTag withCell:(FlowImageCell *)cell {
-    
+- (void)singleCellTapAction:(NSInteger)selectTag withCell:(FlowImageCell *)cell
+{
     if (self.delegate && [self.delegate respondsToSelector:@selector(didSelectCell:withIndex:)]) {
-        
         [self.delegate didSelectCell:cell withIndex:selectTag];
-        
     }
 }
 

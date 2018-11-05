@@ -11,8 +11,8 @@
 
 @implementation FlowImageCell
 
-- (instancetype)initWithFrame:(CGRect)frame {
-    
+- (instancetype)initWithFrame:(CGRect)frame
+{
     self = [super initWithFrame:frame];
     
     if (self) {
@@ -30,22 +30,22 @@
     return self;
 }
 
-- (void)setCellWithModel:(id)model {
-    
+- (void)setCellWithModel:(id)model
+{
     BannerModel *tempModel = model;
     self.titleLabel.text = tempModel.title;
     [self.mainImageView setImage:[UIImage imageNamed:tempModel.imageName]];
-    
 }
 
-- (void)singleCellTapAction:(UIGestureRecognizer *)gesture {
+- (void)singleCellTapAction:(UIGestureRecognizer *)gesture
+{
     if (self.didSelectCellBlock) {
         self.didSelectCellBlock(self.tag, self);
     }
 }
 
-- (void)setSubviewsWithSuperViewBounds:(CGRect)superViewBounds {
-    
+- (void)setSubviewsWithSuperViewBounds:(CGRect)superViewBounds
+{
     if (CGRectEqualToRect(self.mainImageView.frame, superViewBounds)) {
         return;
     }
@@ -56,8 +56,8 @@
 
 #pragma mark - Lazy Load
 
-- (UIImageView *)mainImageView {
-    
+- (UIImageView *)mainImageView
+{
     if (_mainImageView == nil) {
         _mainImageView = [[UIImageView alloc] init];
         _mainImageView.userInteractionEnabled = YES;
@@ -65,8 +65,8 @@
     return _mainImageView;
 }
 
-- (UIImageView *)iconImage {
-    
+- (UIImageView *)iconImage
+{
     if (_iconImage == nil) {
         _iconImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
         _iconImage.contentMode = UIViewContentModeScaleAspectFit;
@@ -74,7 +74,8 @@
     return _iconImage;
 }
 
-- (UIView *)coverView {
+- (UIView *)coverView
+{
     if (_coverView == nil) {
         _coverView = [[UIView alloc] init];
         _coverView.backgroundColor = [UIColor blackColor];
@@ -82,7 +83,8 @@
     return _coverView;
 }
 
-- (UILabel *)titleLabel {
+- (UILabel *)titleLabel
+{
     if (_titleLabel == nil) {
         _titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
         _titleLabel.font = [UIFont systemFontOfSize:32];
