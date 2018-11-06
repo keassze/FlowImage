@@ -14,15 +14,21 @@
 
 @interface FlowImageViewLayout : NSObject
 
-// 间隔
+/** 间隔 */
 @property (nonatomic, assign) UIEdgeInsets edgeInsetsMargin;
-
-// 阴影透明度 默认0.5
+/** 阴影透明度 默认0.5 */
 @property (nonatomic, assign) CGFloat alpha;
-// 单个Page大小
+/** 单个Page大小 */
 @property (nonatomic, assign) CGSize itemSize;
 
-// 刷新当前所看见的page的样式，在scrollViewDidScroll 以及 reloadData时都需要及时更新
+
+/**
+ 刷新当前所看见的page的样式，在scrollViewDidScroll 以及 reloadData时都需要及时更新
+
+ @param cell 需要刷新的cell
+ @param index 该cell的索引值
+ @param contentOffset cell父类的偏移量
+ */
 - (void)refreshVisibleCell:(FlowImageCell *_Nullable)cell forIndex:(NSInteger)index withScrollContentOffset:(CGPoint)contentOffset;
 
 @end

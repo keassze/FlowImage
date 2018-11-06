@@ -65,15 +65,6 @@
     return _mainImageView;
 }
 
-- (UIImageView *)iconImage
-{
-    if (_iconImage == nil) {
-        _iconImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
-        _iconImage.contentMode = UIViewContentModeScaleAspectFit;
-    }
-    return _iconImage;
-}
-
 - (UIView *)coverView
 {
     if (_coverView == nil) {

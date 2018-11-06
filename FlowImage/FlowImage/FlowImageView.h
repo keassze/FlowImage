@@ -18,8 +18,6 @@ static NSString *subViewClassName = @"FlowImageCell";
 
 @interface FlowImageView : UIView<UIScrollViewDelegate>
 
-/// 布局
-
 /** 布局 */
 @property (nonatomic, strong) FlowImageViewLayout *layout;
 /** 是否自动滚动 默认是 */

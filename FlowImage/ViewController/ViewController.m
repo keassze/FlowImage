@@ -37,8 +37,8 @@
     }
     _modelArr = [tempArr copy];
     
-    _pageFlowView = [[FlowImageView alloc] initWithFrame:CGRectMake(0, 20, SCREEN_WIDTH, 150)];
-//    _pageFlowView = [[FlowImageView alloc] initWithFrame:CGRectMake(0, 20, SCREEN_WIDTH, 150) forLayout:self.flowImageViewLayout];
+//    _pageFlowView = [[FlowImageView alloc] initWithFrame:CGRectMake(0, 20, SCREEN_WIDTH, 150)];
+    _pageFlowView = [[FlowImageView alloc] initWithFrame:CGRectMake(0, 20, SCREEN_WIDTH, 150) forLayout:self.flowImageViewLayout];
     _pageFlowView.delegate = self;
     _pageFlowView.dataSource = self;
     _pageFlowView.isForeverFlow = YES;
