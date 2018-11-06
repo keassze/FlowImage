@@ -8,6 +8,7 @@
 
 #import "ViewController.h"
 #import "FlowImageView.h"
+#import "FlowImageViewLayout.h"
 #import "BannerModel.h"
 
 #define SCREEN_WIDTH    [UIScreen mainScreen].bounds.size.width
@@ -15,13 +16,15 @@
 @interface ViewController ()<FlowImageViewDelegate,FlowImageViewDataSorce>
 
 @property (nonatomic, strong) FlowImageView *pageFlowView;
+@property (nonatomic, strong) FlowImageViewLayout *flowImageViewLayout;
 @property (nonatomic, strong) NSArray *modelArr;
 
 @end
 
 @implementation ViewController
 
-- (void)viewDidLoad {
+- (void)viewDidLoad
+{
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     
@@ -35,29 +38,25 @@
     _modelArr = [tempArr copy];
     
     _pageFlowView = [[FlowImageView alloc] initWithFrame:CGRectMake(0, 20, SCREEN_WIDTH, 150)];
+//    _pageFlowView = [[FlowImageView alloc] initWithFrame:CGRectMake(0, 20, SCREEN_WIDTH, 150) forLayout:self.flowImageViewLayout];
     _pageFlowView.delegate = self;
     _pageFlowView.dataSource = self;
-    _pageFlowView.leftRightMargin = 25;
-    _pageFlowView.topBottomMargin = 15;
     _pageFlowView.isForeverFlow = YES;
     _pageFlowView.isAutoScroll  = YES;
-    _pageFlowView.orginPageCount = _modelArr.count;
     _pageFlowView.flowTime = 3.0;
     [self.view addSubview:_pageFlowView];
     
     [_pageFlowView reloadData];
 }
 
-#pragma mark - FlowImageViewDelegate
-- (CGSize)sizeForFlowView:(FlowImageView *)flowImageView {
-    return CGSizeMake(SCREEN_WIDTH - 60, 150);
-}
-
-- (NSInteger)numberOfFlowImageView:(FlowImageView *)flowImageView {
+#pragma mark - FlowImageViewDataSource
+- (NSInteger)numberOfFlowImageView:(FlowImageView *)flowImageView
+{
     return _modelArr.count;
 }
 
-- (FlowImageCell *)flowView:(FlowImageView *)flowImageView cellInFlowViewWithIndex:(NSInteger)index {
+- (FlowImageCell *)flowView:(FlowImageView *)flowImageView cellInFlowViewWithIndex:(NSInteger)index
+{
     FlowImageCell *bannerView = (FlowImageCell *)[flowImageView dequeueReusableCell];
     if (!bannerView) {
         bannerView = [[FlowImageCell alloc] initWithFrame:CGRectMake(0, 0, self.pageFlowView.frame.size.width, self.pageFlowView.frame.size.height)];
@@ -71,17 +70,33 @@
     return bannerView;
 }
 
-- (void)didSelectCell:(FlowImageCell *)cell withIndex:(NSInteger)index {
-    
+#pragma mark - FlowImageViewDelegate
+- (void)didSelectCell:(FlowImageCell *)cell withIndex:(NSInteger)index
+{
     NSLog(@"点击%ld",(long)index);
-    
 }
 
+#pragma mark - Lazy Load
+- (FlowImageViewLayout *)flowImageViewLayout
+{
+    if (!_flowImageViewLayout) {
+        _flowImageViewLayout = [[FlowImageViewLayout alloc] init];
+        _flowImageViewLayout.edgeInsetsMargin = UIEdgeInsetsMake(10, 10, 10, 10);
+//        _flowImageViewLayout.alpha = 0.5f;    // 设置未展示Page 阴影的透明度
+        _flowImageViewLayout.itemSize = CGSizeMake(SCREEN_WIDTH - 60, 150);
+    }
+    return _flowImageViewLayout;
+}
 
-- (void)didReceiveMemoryWarning {
+- (void)didReceiveMemoryWarning
+{
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
 
-
 @end
+
+
+
+
+

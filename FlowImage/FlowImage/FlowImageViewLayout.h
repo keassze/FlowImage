@@ -8,16 +8,26 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import "FlowImageView.h"
 
 @class FlowImageView;
 
 @interface FlowImageViewLayout : NSObject
 
-// 左右间隔
-@property (nonatomic, assign) CGFloat leftRightMargin;
-// 上下间隔
-@property (nonatomic, assign) CGFloat topBottomMargin;
+// 间隔
+@property (nonatomic, assign) UIEdgeInsets edgeInsetsMargin;
+
+// 阴影透明度 默认0.5
+@property (nonatomic, assign) CGFloat alpha;
 // 单个Page大小
 @property (nonatomic, assign) CGSize itemSize;
 
+// 刷新当前所看见的page的样式，在scrollViewDidScroll 以及 reloadData时都需要及时更新
+- (void)refreshVisibleCell:(FlowImageCell *_Nullable)cell forIndex:(NSInteger)index withScrollContentOffset:(CGPoint)contentOffset;
+
 @end
+
+
+
+
+

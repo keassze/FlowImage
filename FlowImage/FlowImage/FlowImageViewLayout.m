@@ -7,14 +7,9 @@
 //
 
 #import "FlowImageViewLayout.h"
-//#import "FlowImageView.h"
-//#import "FlowImageCell.h"
-//
-//@interface FlowImageViewLayout()
-//
-//@property (nonatomic, strong) FlowImageView *flowImageView;
-//
-//@end
+#import "FlowImageCell.h"
+
+static const CGFloat kBannerRatio = 0.58;
 
 @implementation FlowImageViewLayout
 
@@ -23,54 +18,44 @@
 {
     self = [super init];
     if (self) {
-        self.leftRightMargin = 20;
-        self.topBottomMargin = 30;
+        //默认值
+        self.edgeInsetsMargin = UIEdgeInsetsMake(10, 15, 10, 15);
+        self.alpha = 0.5f;
+        self.itemSize = CGSizeMake(200, 200 *kBannerRatio);
     }
     return self;
 }
-//
-//- (void)setLeftRightMargin:(CGFloat)leftRightMargin
-//{
-//    _leftRightMargin = leftRightMargin * 0.5;
-//    
-//}
-//
-//- (void)setTopBottomMargin:(CGFloat)topBottomMargin
-//{
-//    _topBottomMargin = topBottomMargin * 0.5;
-//}
-//
-//- (void)refreshVisibleCell
-//{
-//    CGFloat offset = _flowImageView.scrollView.contentOffset.x;
-//    
-//    for (NSInteger i = _flowImageView.visibleRange.location; i < _flowImageView.visibleRange.location + _flowImageView.visibleRange.length; i++) {
-//        FlowImageCell *cell = [_cells objectAtIndex:i];
-//        CGFloat origin = cell.frame.origin.x;
-//        CGFloat delta = fabs(origin - offset);
-//        CGFloat alpha = 0.5f;
-//        
-//        CGRect originCellFrame = CGRectMake(_pageSize.width * i, 0, _pageSize.width, _pageSize.height);//如果没有缩小效果的情况下的本该的Frame
-//        
-//        if (delta < _pageSize.width) {
-//            
-//            cell.coverView.alpha = (delta / _pageSize.width)*alpha;
-//            
-//            CGFloat leftRightInset = _leftRightMargin * delta / _pageSize.width;
-//            CGFloat topBottomInset = _topBottomMargin * delta / _pageSize.width;
-//            
-//            cell.layer.transform = CATransform3DMakeScale((_pageSize.width-leftRightInset*2)/_pageSize.width,(_pageSize.height-topBottomInset*2)/_pageSize.height, 1.0);
-//            cell.frame = UIEdgeInsetsInsetRect(originCellFrame, UIEdgeInsetsMake(topBottomInset, leftRightInset, topBottomInset, leftRightInset));
-//            
-//            
-//        } else {
-//            cell.coverView.alpha = alpha;
-//            cell.layer.transform = CATransform3DMakeScale((_pageSize.width-self.leftRightMargin*2)/_pageSize.width,(_pageSize.height-self.topBottomMargin*2)/_pageSize.height, 1.0);
-//            cell.frame = UIEdgeInsetsInsetRect(originCellFrame, UIEdgeInsetsMake(_topBottomMargin, _leftRightMargin, _topBottomMargin, _leftRightMargin));
-//            
-//        }
-//    }
-//}
+
+// 刷新当前所看见的page的样式，在scrollViewDidScroll 以及 reloadData时都需要及时更新
+- (void)refreshVisibleCell:(FlowImageCell *)cell forIndex:(NSInteger)index withScrollContentOffset:(CGPoint)contentOffset
+{
+    CGFloat offset = contentOffset.x;
+    CGFloat origin = cell.frame.origin.x;
+    CGFloat delta = fabs(origin - offset)/_itemSize.width;
+    
+    // 没有使用缩小效果情况下的Frame
+    CGRect originCellFrame = CGRectMake(_itemSize.width * index, 0, _itemSize.width, _itemSize.height);
+    
+    // 根据cell位置，设置cell自身的样式
+    if (delta < 1) {
+        CGFloat leftInset  = _edgeInsetsMargin.left *delta;
+        CGFloat rightInset = _edgeInsetsMargin.right *delta;
+        CGFloat topInset   = _edgeInsetsMargin.top *delta;
+        CGFloat bottomInset= _edgeInsetsMargin.bottom *delta;
+        
+        cell.coverView.alpha = delta*_alpha;
+        cell.layer.transform = CATransform3DMakeScale((_itemSize.width - leftInset - rightInset)/_itemSize.width,(_itemSize.height - bottomInset - topInset)/_itemSize.height, 1.0);
+        cell.frame = UIEdgeInsetsInsetRect(originCellFrame, UIEdgeInsetsMake(topInset, leftInset, bottomInset, rightInset));
+    } else {
+        cell.coverView.alpha = _alpha;
+        cell.layer.transform = CATransform3DMakeScale((_itemSize.width - _edgeInsetsMargin.left - _edgeInsetsMargin.right)/_itemSize.width,(_itemSize.height - _edgeInsetsMargin.bottom - _edgeInsetsMargin.top)/_itemSize.height, 1.0);
+        cell.frame = UIEdgeInsetsInsetRect(originCellFrame, _edgeInsetsMargin);
+    }
+    
+    // 重设cell内容布局大小
+    [cell setSubviewsWithSuperViewBounds:CGRectMake(0, 0, _itemSize.width, _itemSize.height)];
+}
+
 
 @end
 

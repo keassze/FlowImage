@@ -12,14 +12,17 @@
 
 @property (nonatomic, assign, readwrite) NSInteger currentPageIndex;
 
+@property (nonatomic, strong) UIScrollView *scrollView;
+
 @property (nonatomic, assign) NSInteger page;
 @property (nonatomic, assign) NSInteger pageCount;
+@property (nonatomic, assign) NSInteger orginPageCount;
 @property (nonatomic, assign) CGSize pageSize;
+@property (nonatomic, assign) NSRange visibleRange;
 
 @property (nonatomic, strong) NSTimer *timer;
 @property (nonatomic, strong) NSMutableArray *cells;
 @property (nonatomic, strong) NSMutableArray *reusableCells;
-
 
 @end
 
@@ -33,8 +36,6 @@
     self.pageCount = 0;
     self.isAutoScroll = YES;
     self.isForeverFlow = YES;
-    self.leftRightMargin = 20;
-    self.topBottomMargin = 30;
     self.currentPageIndex = 0;
     self.flowTime = 5.0;
     self.visibleRange = NSMakeRange(0, 0);
@@ -50,6 +51,7 @@
     self.scrollView.showsHorizontalScrollIndicator = NO;
     self.scrollView.showsVerticalScrollIndicator = NO;
     
+    self.layout = [FlowImageViewLayout new];
     
     [self addSubview:self.scrollView];
 }
@@ -82,25 +84,15 @@
     return self;
 }
 
-//- (instancetype)initWithFrame:(CGRect)frame forLayout:(FlowImageViewLayout *)layout
-//{
-//    self = [super initWithFrame:frame];
-//    if (self) {
-//        [self initConfig];
-//        self.layout = layout;
-//    }
-//    return self;
-//}
-
-- (void)setLeftRightMargin:(CGFloat)leftRightMargin
+- (instancetype)initWithFrame:(CGRect)frame forLayout:(FlowImageViewLayout *)layout
 {
-    _leftRightMargin = leftRightMargin * 0.5;
-
-}
-
-- (void)setTopBottomMargin:(CGFloat)topBottomMargin
-{
-    _topBottomMargin = topBottomMargin * 0.5;
+    self = [super initWithFrame:frame];
+    if (self) {
+        [self initConfig];
+        self.layout = layout;
+        self.pageSize = self.layout.itemSize;
+    }
+    return self;
 }
 
 - (FlowImageCell *)dequeueReusableCell
@@ -157,11 +149,8 @@
         
     }
     
-    // 重置pageWidth
-    _pageSize = CGSizeMake(self.bounds.size.width - 4 * self.leftRightMargin,(self.bounds.size.width - 4 * self.leftRightMargin) * 9 /16);
-    if (self.delegate && self.delegate && [self.delegate respondsToSelector:@selector(sizeForFlowView:)]) {
-        _pageSize = [self.delegate sizeForFlowView:self];
-    }
+    // 防止用其他初始化方法时没有获取到Page的大小
+    self.pageSize = self.layout.itemSize;
     
     [_reusableCells removeAllObjects];
     _visibleRange = NSMakeRange(0, 0);
@@ -180,25 +169,22 @@
     _scrollView.center = theCenter;
     
     if (self.isForeverFlow) {
-        
-        //滚到第二组
+        // 滚到第二组
         [_scrollView setContentOffset:CGPointMake(_pageSize.width * self.orginPageCount, 0) animated:NO];
         self.page = self.orginPageCount;
         
-        //启动自动轮播
+        // 启动自动轮播
         [self startTimer];
-        
     }else {
-        //滚到开始
+        // 滚到开始
         [_scrollView setContentOffset:CGPointMake(0, 0) animated:NO];
         self.page = self.orginPageCount;
-        
     }
     
-    //根据当前scrollView的offset设置cell
+    // 根据当前scrollView的offset设置cell
     [self setPagesAtContentOffset:_scrollView.contentOffset];
     
-    //更新可视cell
+    // 更新可视cell
     [self refreshVisibleCell];
 }
 
@@ -211,13 +197,11 @@
         [_cells replaceObjectAtIndex:index withObject:cell];
         
         cell.tag = index % _orginPageCount;
-        [cell setSubviewsWithSuperViewBounds:CGRectMake(0, 0, _pageSize.width, _pageSize.height)];
         
         __weak __typeof(self) weakSelf = self;
         cell.didSelectCellBlock = ^(NSInteger tag, FlowImageCell *cell) {
             [weakSelf singleCellTapAction:tag withCell:cell];
         };
-        cell.frame = CGRectMake(_pageSize.width * index, 0, _pageSize.width, _pageSize.height);
     }
     
     if (!cell.superview) {
@@ -227,44 +211,21 @@
 
 - (void)refreshVisibleCell
 {
-    CGFloat offset = _scrollView.contentOffset.x;
-    
     for (NSInteger i = _visibleRange.location; i < _visibleRange.location + _visibleRange.length; i++) {
         FlowImageCell *cell = [_cells objectAtIndex:i];
-        CGFloat origin = cell.frame.origin.x;
-        CGFloat delta = fabs(origin - offset);
-        CGFloat alpha = 0.5f;
-        
-        CGRect originCellFrame = CGRectMake(_pageSize.width * i, 0, _pageSize.width, _pageSize.height);//如果没有缩小效果的情况下的本该的Frame
-        
-        if (delta < _pageSize.width) {
-            
-            cell.coverView.alpha = (delta / _pageSize.width)*alpha;
-            
-            CGFloat leftRightInset = _leftRightMargin * delta / _pageSize.width;
-            CGFloat topBottomInset = _topBottomMargin * delta / _pageSize.width;
-            
-            cell.layer.transform = CATransform3DMakeScale((_pageSize.width-leftRightInset*2)/_pageSize.width,(_pageSize.height-topBottomInset*2)/_pageSize.height, 1.0);
-            cell.frame = UIEdgeInsetsInsetRect(originCellFrame, UIEdgeInsetsMake(topBottomInset, leftRightInset, topBottomInset, leftRightInset));
-            
-            
-        } else {
-            cell.coverView.alpha = alpha;
-            cell.layer.transform = CATransform3DMakeScale((_pageSize.width-self.leftRightMargin*2)/_pageSize.width,(_pageSize.height-self.topBottomMargin*2)/_pageSize.height, 1.0);
-            cell.frame = UIEdgeInsetsInsetRect(originCellFrame, UIEdgeInsetsMake(_topBottomMargin, _leftRightMargin, _topBottomMargin, _leftRightMargin));
-            
-        }
+        [self.layout refreshVisibleCell:cell forIndex:i withScrollContentOffset:_scrollView.contentOffset];
     }
 }
 
 - (void)setPagesAtContentOffset:(CGPoint)offset
 {
-    //计算visibleRange
+    // 计算visibleRange
     CGPoint startPoint = CGPointMake(offset.x - _scrollView.frame.origin.x, offset.y - _scrollView.frame.origin.y);
     CGPoint endPoint = CGPointMake(startPoint.x + self.bounds.size.width, startPoint.y + self.bounds.size.height);
     
     NSInteger startIndex = 0;
     for (int i =0; i < [_cells count]; i++) {
+        // 计算在可视区域最前方cell的索引值
         if (_pageSize.width * (i +1) > startPoint.x) {
             startIndex = i;
             break;
@@ -273,9 +234,11 @@
     
     NSInteger endIndex = startIndex;
     for (NSInteger i = startIndex; i < [_cells count]; i++) {
-        //如果都不超过则取最后一个
+        // 计算在可视区域最后方cell的索引值
+        // 如果都不超过则取最后一个
         if ((_pageSize.width * (i + 1) < endPoint.x && _pageSize.width * (i + 2) >= endPoint.x) || i+ 2 == [_cells count]) {
-            endIndex = i + 1;//i+2 是以个数，所以其index需要减去1
+            //i+2 是count，index = count - 1
+            endIndex = i + 1;
             break;
         }
     }
@@ -337,7 +300,7 @@
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset
 {
     if (self.orginPageCount > 1 && self.isAutoScroll && self.isForeverFlow) {
-        
+
         if (self.page == floor(_scrollView.contentOffset.x / _pageSize.width)) {
             self.page = floor(_scrollView.contentOffset.x / _pageSize.width) + 1;
         }else {
@@ -353,7 +316,7 @@
         return;
     }
     
-    NSInteger pageIndex = (int)round(_scrollView.contentOffset.x / _pageSize.width) % self.orginPageCount;
+    NSInteger pageIndex = (int)round(scrollView.contentOffset.x / _pageSize.width) % self.orginPageCount;
     if (_isForeverFlow) {
         
         if (self.orginPageCount > 1) {
