@@ -22,6 +22,7 @@
 		886BEAA1218C14ED00E4438F /* 3.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 886BEA9D218C14ED00E4438F /* 3.jpg */; };
 		886BEAAF218C26DE00E4438F /* BannerModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 886BEAAE218C26DE00E4438F /* BannerModel.m */; };
 		886BEAB1218C2A6B00E4438F /* 1.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 886BEAB0218C2A6B00E4438F /* 1.jpg */; };
+		889D024D218FE5440055E534 /* FlowImageViewLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 889D024C218FE5440055E534 /* FlowImageViewLayout.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -68,6 +69,8 @@
 		886BEAAD218C26DE00E4438F /* BannerModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BannerModel.h; sourceTree = "<group>"; };
 		886BEAAE218C26DE00E4438F /* BannerModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BannerModel.m; sourceTree = "<group>"; };
 		886BEAB0218C2A6B00E4438F /* 1.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 1.jpg; sourceTree = "<group>"; };
+		889D024B218FE5440055E534 /* FlowImageViewLayout.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FlowImageViewLayout.h; sourceTree = "<group>"; };
+		889D024C218FE5440055E534 /* FlowImageViewLayout.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FlowImageViewLayout.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -166,6 +169,8 @@
 				886BEA4D218BF1BA00E4438F /* FlowImageView.m */,
 				886BEA4F218BF45300E4438F /* FlowImageCell.h */,
 				886BEA50218BF45300E4438F /* FlowImageCell.m */,
+				889D024B218FE5440055E534 /* FlowImageViewLayout.h */,
+				889D024C218FE5440055E534 /* FlowImageViewLayout.m */,
 			);
 			path = FlowImage;
 			sourceTree = "<group>";
@@ -336,6 +341,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				889D024D218FE5440055E534 /* FlowImageViewLayout.m in Sources */,
 				886BEA51218BF45300E4438F /* FlowImageCell.m in Sources */,
 				886BEAAF218C26DE00E4438F /* BannerModel.m in Sources */,
 				886BEA4E218BF1BA00E4438F /* FlowImageView.m in Sources */,
