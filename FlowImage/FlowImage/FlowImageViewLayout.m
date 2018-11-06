@@ -19,15 +19,15 @@
 @implementation FlowImageViewLayout
 
 
-//- (instancetype)init
-//{
-//    self = [super init];
-//    if (self) {
-//        self.leftRightMargin = 20;
-//        self.topBottomMargin = 30;
-//    }
-//    return self;
-//}
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.leftRightMargin = 20;
+        self.topBottomMargin = 30;
+    }
+    return self;
+}
 //
 //- (void)setLeftRightMargin:(CGFloat)leftRightMargin
 //{
